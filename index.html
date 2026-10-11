@@ -4,37 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tugas Matematika - MTsN 3 Balangan</title>
+    <!-- Tambahkan Favicon -->
     <link rel="icon" type="image/png" href="favicon.png">
+    <!-- Tambahkan SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         :root { --primary: #047857; --primary-hover: #065f46; --bg: #f0fdf4; --card: #ffffff; --text: #1e293b; --border: #d1fae5; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); color: var(--text); padding: 0; margin: 0; line-height: 1.6; }
         
-        /* Header Styling */
         .header { background: white; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-bottom: 3px solid var(--primary); }
         .header img { height: 60px; width: auto; margin-bottom: 8px; }
         .header h1 { margin: 0; font-size: 1.1rem; color: #475569; letter-spacing: 1px; }
         .header h2 { margin: 5px 0; color: var(--primary); font-size: 1.4rem; }
         .header p { margin: 0; color: #64748b; font-weight: 500; font-size: 0.9rem; }
 
-        /* Layout Container */
         .container { max-width: 1000px; margin: 20px auto; padding: 0 15px; display: grid; grid-template-columns: 2fr 1fr; gap: 20px; align-items: start; }
         
         .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid var(--border); }
         .hidden { display: none !important; }
         
-        /* Form Elements */
         .form-group { margin-bottom: 15px; }
         label { display: block; font-weight: 600; margin-bottom: 6px; font-size: 0.9rem; color: #334155; }
-        select, input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 16px; /* Mencegah auto-zoom di iPhone */ transition: border 0.3s; }
+        select, input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; font-family: inherit; font-size: 16px; transition: border 0.3s; }
         select:focus, input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.1); }
         
         button { background-color: var(--primary); color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1rem; transition: background 0.3s; margin-top: 5px; }
         button:hover { background-color: var(--primary-hover); }
         
-        /* Grid Dinamis Dimensi */
         #dimensiContainer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-        /* Sidebar List */
         .sidebar-title { font-size: 1.1rem; color: var(--primary); margin-top: 0; border-bottom: 2px solid var(--border); padding-bottom: 10px; margin-bottom: 15px; }
         .student-list { list-style: none; padding: 0; margin: 0; max-height: 400px; overflow-y: auto; }
         .student-list li { background: #f8fafc; padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 0.85rem; border-left: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center;}
@@ -43,14 +42,13 @@
         #preview { max-width: 100%; margin-top: 15px; border-radius: 8px; display: none; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         .loader { text-align: center; font-weight: bold; color: var(--primary); padding: 10px; font-size: 0.9rem; }
 
-        /* OPTIMASI KHUSUS MOBILE / HP */
         @media (max-width: 768px) { 
             .container { grid-template-columns: 1fr; gap: 15px; margin: 15px auto; padding: 0 10px; }
             .card { padding: 15px; }
-            #dimensiContainer { grid-template-columns: 1fr; /* Kolom input dimensi jadi vertikal di HP */ }
+            #dimensiContainer { grid-template-columns: 1fr; }
             #loginSection { padding: 0 15px !important; margin: 25px auto !important; }
             .header h2 { font-size: 1.25rem; }
-            .student-list { max-height: 250px; /* Daftar siswa lebih pendek di HP agar tidak makan layar */ }
+            .student-list { max-height: 250px; }
         }
     </style>
 </head>
@@ -80,7 +78,7 @@
         
         <!-- Left Column: Form -->
         <div class="card">
-            <h3 style="margin-top: 0; color: var(--primary); font-size: 1.1rem;">Formulir Setor Tugas</h3>
+            <h3 style="margin-top: 0; color: var(--primary); font-size: 1.1rem;">Formulir Penyetoran</h3>
             <form id="tugasForm">
                 <div class="form-group">
                     <label>Kelas</label>
@@ -136,8 +134,21 @@
     </div>
 
     <script>
-        // MASUKKAN URL GAS ANDA DI SINI (Pastikan ini URL dari New Deployment)
+        // MASUKKAN URL GAS ANDA DI SINI
         const URL_GAS = 'https://script.google.com/macros/s/AKfycbxs0og8BN0TypDi-hj0uZGi0gk3bPPJWmSCXwKKUrrRfEwUGYD8X_ubDrXGv7vGAU3t/exec';
+
+        // Konfigurasi Toast SweetAlert2 untuk notifikasi kecil
+        const Toast = Swal.mixin({
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3000,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer)
+                toast.addEventListener('mouseleave', Swal.resumeTimer)
+            }
+        });
 
         // Data Siswa
         const dataSiswa = {
@@ -195,7 +206,9 @@
 
         document.getElementById('btnLoginSiswa').onclick = async () => {
             const token = document.getElementById('inputToken').value;
-            if(!token) return alert("Masukkan token!");
+            if(!token) {
+                return Toast.fire({ icon: 'warning', title: 'Silakan masukkan token terlebih dahulu!' });
+            }
             
             document.getElementById('btnLoginSiswa').classList.add('hidden');
             document.getElementById('loadingToken').classList.remove('hidden');
@@ -210,15 +223,16 @@
                 const result = await response.json();
                 
                 if(result.status === 'success') {
+                    Toast.fire({ icon: 'success', title: 'Akses Diberikan!' });
                     document.getElementById('loginSection').classList.add('hidden');
                     document.getElementById('workspaceSection').classList.remove('hidden');
                     loadSubmittedData(); 
                 } else {
-                    alert(result.message);
+                    Swal.fire({ icon: 'error', title: 'Akses Ditolak', text: result.message, confirmButtonColor: '#047857' });
                     document.getElementById('btnLoginSiswa').classList.remove('hidden');
                 }
             } catch (e) {
-                alert("Gagal terhubung ke server.");
+                Swal.fire({ icon: 'error', title: 'Koneksi Gagal', text: 'Gagal terhubung ke server.', confirmButtonColor: '#047857' });
                 document.getElementById('btnLoginSiswa').classList.remove('hidden');
             } finally {
                 document.getElementById('loadingToken').classList.add('hidden');
@@ -280,15 +294,20 @@
                 const result = await response.json();
                 
                 if(result.status === 'success') {
-                    alert("Tugas berhasil terkirim!");
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Kerja Bagus!',
+                        text: 'Tugas kamu berhasil dikirim ke guru.',
+                        confirmButtonColor: '#047857'
+                    });
                     document.getElementById('tugasForm').reset();
                     document.getElementById('preview').style.display = 'none';
                     loadSubmittedData(); 
                 } else {
-                    alert("Gagal mengirim: " + result.message);
+                    Swal.fire({ icon: 'error', title: 'Gagal Mengirim', text: result.message, confirmButtonColor: '#047857' });
                 }
             } catch (e) {
-                alert("Terjadi kesalahan jaringan.");
+                Swal.fire({ icon: 'error', title: 'Masalah Jaringan', text: 'Terjadi kesalahan jaringan, silakan coba lagi.', confirmButtonColor: '#047857' });
             } finally {
                 document.getElementById('btnSubmit').classList.remove('hidden');
                 document.getElementById('loadingSubmit').classList.add('hidden');
